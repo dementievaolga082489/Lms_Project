@@ -10,6 +10,20 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
 
 
+class CourseListView(generics.ListAPIView):
+    """Вывод списка курсов с уроками"""
+
+    queryset = Course.objects.all().prefetch_related("lessons")
+    serializer_class = CourseSerializer
+
+
+class CourseDetailView(generics.RetrieveAPIView):
+    """Вывод детальной информации о курсе с уроками"""
+
+    queryset = Course.objects.all().prefetch_related("lessons")
+    serializer_class = CourseSerializer
+
+
 # Для уроков используем Generic-классы
 class LessonListCreateView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
