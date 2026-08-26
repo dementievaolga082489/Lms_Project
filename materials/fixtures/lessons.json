@@ -1,0 +1,46 @@
+[
+  {
+    "model": "materials.lesson",
+    "pk": 1,
+    "fields": {
+      "name": "Алфавит и произношение",
+      "description": "Урок по теме: Алфавит и произношение",
+      "preview": null,
+      "video_url": "https://youtu.be/lesson_1_1",
+      "course": 1
+    }
+  },
+  {
+    "model": "materials.lesson",
+    "pk": 2,
+    "fields": {
+      "name": "Глагол to be. Приветствия",
+      "description": "Урок по теме: Глагол to be. Приветствия",
+      "preview": null,
+      "video_url": "https://youtu.be/lesson_1_2",
+      "course": 1
+    }
+  },
+  {
+    "model": "materials.lesson",
+    "pk": 3,
+    "fields": {
+      "name": "Глаголы ser и estar",
+      "description": "Урок по теме: Глаголы ser и estar",
+      "preview": null,
+      "video_url": "https://youtu.be/lesson_2_1",
+      "course": 2
+    }
+  },
+  {
+    "model": "materials.lesson",
+    "pk": 4,
+    "fields": {
+      "name": "Глаголы avoir и être",
+      "description": "Урок по теме: Глаголы avoir и être",
+      "preview": null,
+      "video_url": "https://youtu.be/lesson_3_1",
+      "course": 3
+    }
+  }
+]
