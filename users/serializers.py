@@ -56,5 +56,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_payment_history(self, obj):
         """Получение истории платежей пользователя"""
-        payments = obj.payments.all().order_by("-payment_date")[:10]
+        payments = obj.payments.all().order_by("-payment_date")
         return UserPaymentSerializer(payments, many=True).data
