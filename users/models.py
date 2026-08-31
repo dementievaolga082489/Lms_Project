@@ -1,10 +1,10 @@
-from django.contrib.auth.base_user import AbstractBaseUser
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from materials.models import Course, Lesson
 
 
-class User(AbstractBaseUser):
+class User(AbstractUser):
     username = None
     email = models.EmailField(
         unique=True, verbose_name="Почта", help_text="Укажите почту"
@@ -47,7 +47,7 @@ class Payments(models.Model):
     """Модель платежи"""
 
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
         help_text="Выберите пользователя",
@@ -58,7 +58,7 @@ class Payments(models.Model):
         verbose_name="Дата платежа",
     )
     course = models.ForeignKey(
-        Course,
+        'materials.Course',
         on_delete=models.CASCADE,
         verbose_name="Оплаченный курс",
         null=True,
@@ -66,7 +66,7 @@ class Payments(models.Model):
         related_name='payments',
     )
     lesson = models.ForeignKey(
-        Lesson,
+        'materials.Lesson',
         on_delete=models.CASCADE,
         verbose_name="Оплаченный урок",
         null=True,

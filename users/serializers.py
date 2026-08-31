@@ -2,6 +2,10 @@ from rest_framework import serializers
 
 from .models import Payments, User
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
 
 class PaymentSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Payments"""
@@ -58,3 +62,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         """Получение истории платежей пользователя"""
         payments = obj.payments.all().order_by("-payment_date")
         return UserPaymentSerializer(payments, many=True).data
+
+
+class UserPublicSerializer(serializers.ModelSerializer):
+    """Сериализатор для публичного просмотра профиля (без личной информации)"""
+
+    class Meta:
+        model = User
+        fields = ["id", "email", "city", "avatar"]
