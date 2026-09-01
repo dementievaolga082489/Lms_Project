@@ -1,8 +1,9 @@
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from users.permissions import IsModerator
+from users.permissions import IsModerator, IsOwner
 from .models import Course, Lesson
+from .paginators import Paginator
 from .serializers import CourseSerializer, LessonSerializer
 
 
@@ -10,6 +11,7 @@ from .serializers import CourseSerializer, LessonSerializer
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    pagination_class = Paginator
 
     def get_permissions(self):
         """
@@ -62,6 +64,7 @@ class CourseListView(generics.ListAPIView):
 
     queryset = Course.objects.all().prefetch_related("lessons")
     serializer_class = CourseSerializer
+    pagination_class = Paginator
 
 
 class CourseDetailView(generics.RetrieveAPIView):
@@ -75,6 +78,7 @@ class CourseDetailView(generics.RetrieveAPIView):
 class LessonListCreateView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = Paginator
 
     def get_permissions(self):
         if self.request.method == 'POST':
