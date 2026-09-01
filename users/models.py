@@ -94,3 +94,35 @@ class Payments(models.Model):
         verbose_name = "Платеж"
         verbose_name_plural = "Платежи"
         ordering = ["-payment_date"]
+
+
+class Subscription(models.Model):
+    """Модель подписки на обновления курса"""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+        help_text="Пользователь, подписанный на обновления",
+        related_name='subscriptions'
+    )
+    course = models.ForeignKey(
+        'materials.Course',
+        on_delete=models.CASCADE,
+        verbose_name="Курс",
+        help_text="Курс, на который подписан пользователь",
+        related_name='subscribers'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Активна",
+        help_text="Активна ли подписка"
+    )
+
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        unique_together = ['user', 'course']
+
+    def __str__(self):
+        return f"{self.user.email} подписан на {self.course.name}"
