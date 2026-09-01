@@ -1,12 +1,17 @@
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, status
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .models import Payments, User
+from materials.models import Course
+from .models import Payments, User, Subscription
 from .permissions import IsOwner
-from .serializers import PaymentSerializer, UserProfileSerializer, UserSerializer, UserPublicSerializer
+from .serializers import PaymentSerializer, UserProfileSerializer, UserSerializer, UserPublicSerializer, \
+    SubscriptionSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -87,3 +92,63 @@ class UserProfileView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related("payments")
+
+
+class SubscriptionView(APIView):
+    """
+    APIView для управления подписками пользователя на курсы
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        """
+        Переключает подписку пользователя на курс.
+        Если подписка есть - удаляет, если нет - создает.
+        """
+        user = request.user
+        course_id = request.data.get('course_id')
+
+        if not course_id:
+            return Response(
+                {"error": "Необходимо указать course_id"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Получаем объект курса или возвращаем 404
+        course = get_object_or_404(Course, id=course_id)
+
+        # Проверяем существование подписки
+        subscription = Subscription.objects.filter(
+            user=user,
+            course=course,
+            is_active=True
+        )
+
+        if subscription.exists():
+            # Если подписка существует - удаляем (деактивируем)
+            subscription.delete()
+            message = "Подписка удалена"
+            status_code = status.HTTP_200_OK
+        else:
+            # Если подписки нет - создаем
+            Subscription.objects.create(user=user, course=course)
+            message = "Подписка добавлена"
+            status_code = status.HTTP_201_CREATED
+
+        return Response({"message": message}, status=status_code)
+
+
+class UserSubscriptionListView(APIView):
+    """
+    Получение списка подписок текущего пользователя
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        subscriptions = Subscription.objects.filter(
+            user=request.user,
+            is_active=True
+        )
+        serializer = SubscriptionSerializer(subscriptions, many=True)
+        return Response(serializer.data)
+
