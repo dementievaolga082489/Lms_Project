@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from .models import Payments, User
+from .models import Payments, User, Subscription
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,3 +71,15 @@ class UserPublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "email", "city", "avatar"]
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    """Сериализатор для подписки"""
+
+    user_email = serializers.ReadOnlyField(source='user.email')
+    course_name = serializers.ReadOnlyField(source='course.name')
+
+    class Meta:
+        model = Subscription
+        fields = ["id", "user", "user_email", "course", "is_active", "course_name"]
+        read_only_fields = ["user", "is_active"]
