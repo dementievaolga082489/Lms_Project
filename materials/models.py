@@ -2,7 +2,6 @@ from django.conf import settings
 from django.db import models
 
 
-
 class Course(models.Model):
     name = models.CharField(
         max_length=200,
@@ -27,7 +26,7 @@ class Course(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name="Владелец курса",
-        related_name='courses',
+        related_name="courses",
         null=True,
         blank=True,
     )
@@ -71,7 +70,7 @@ class Lesson(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name="Владелец урока",
-        related_name='lessons',
+        related_name="lessons",
         null=True,
         blank=True,
     )
