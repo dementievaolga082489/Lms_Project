@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-
 class User(AbstractUser):
     username = None
     email = models.EmailField(
@@ -51,40 +50,56 @@ class Payments(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
         help_text="Выберите пользователя",
-        related_name='payments'
+        related_name="payments",
     )
     payment_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата платежа",
     )
     course = models.ForeignKey(
-        'materials.Course',
+        "materials.Course",
         on_delete=models.CASCADE,
         verbose_name="Оплаченный курс",
         null=True,
         blank=True,
-        related_name='payments',
+        related_name="payments",
     )
     lesson = models.ForeignKey(
-        'materials.Lesson',
+        "materials.Lesson",
         on_delete=models.CASCADE,
         verbose_name="Оплаченный урок",
         null=True,
         blank=True,
-        related_name = 'payments',
+        related_name="payments",
     )
     amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         verbose_name="Сумма оплаты",
         help_text="Укажите сумму оплаты",
-
     )
     payment_method = models.CharField(
         max_length=20,
-        choices=[("cash", "Наличные"), ("transfer", "Перевод на счет")],
+        choices=[
+            ("cash", "Наличные"),
+            ("transfer", "Перевод на счет"),
+            ("card", "Банковская карта"),
+        ],
         verbose_name="Способ оплаты",
         help_text="Выберите способ оплаты",
+    )
+    stripe_session_id = models.CharField(
+        max_length=255,
+        verbose_name="ID сессии в Stripe",
+        blank=True,
+        null=True,
+    )
+    payment_url = models.URLField(
+        max_length=700,
+        verbose_name="Ссылка на оплату",
+        blank=True,
+        null=True,
+        help_text="Ссылка для перехода на оплату в Stripe",
     )
 
     def __str__(self):
@@ -104,25 +119,23 @@ class Subscription(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
         help_text="Пользователь, подписанный на обновления",
-        related_name='subscriptions'
+        related_name="subscriptions",
     )
     course = models.ForeignKey(
-        'materials.Course',
+        "materials.Course",
         on_delete=models.CASCADE,
         verbose_name="Курс",
         help_text="Курс, на который подписан пользователь",
-        related_name='subscribers'
+        related_name="subscribers",
     )
     is_active = models.BooleanField(
-        default=True,
-        verbose_name="Активна",
-        help_text="Активна ли подписка"
+        default=True, verbose_name="Активна", help_text="Активна ли подписка"
     )
 
     class Meta:
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
-        unique_together = ['user', 'course']
+        unique_together = ["user", "course"]
 
     def __str__(self):
         return f"{self.user.email} подписан на {self.course.name}"
