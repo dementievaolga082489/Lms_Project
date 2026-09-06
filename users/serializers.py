@@ -1,12 +1,13 @@
 from rest_framework import serializers
 
-from .models import Payments, User, Subscription
+from .models import Payments, Subscription, User
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
+
 
 class PaymentSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Payments"""
@@ -30,6 +31,22 @@ class PaymentSerializer(serializers.ModelSerializer):
             "payment_method",
         ]
         read_only_fields = ["user"]
+
+
+class PaymentStripeSerializer(serializers.ModelSerializer):
+    """Сериализатор для платежей в Stripe"""
+
+    class Meta:
+        model = Payments
+        fields = "__all__"
+        read_only_fields = [
+            "user",
+            "stripe_product_id",
+            "stripe_price_id",
+            "stripe_session_id",
+            "payment_url",
+            "payment_date",
+        ]
 
 
 class UserPaymentSerializer(serializers.ModelSerializer):
@@ -76,8 +93,8 @@ class UserPublicSerializer(serializers.ModelSerializer):
 class SubscriptionSerializer(serializers.ModelSerializer):
     """Сериализатор для подписки"""
 
-    user_email = serializers.ReadOnlyField(source='user.email')
-    course_name = serializers.ReadOnlyField(source='course.name')
+    user_email = serializers.ReadOnlyField(source="user.email")
+    course_name = serializers.ReadOnlyField(source="course.name")
 
     class Meta:
         model = Subscription
