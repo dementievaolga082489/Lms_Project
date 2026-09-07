@@ -18,42 +18,39 @@ class LessonCRUDTestCase(APITestCase):
         """
         # Создаем пользователей
         self.user = User.objects.create(
-            email='user@example.com',
+            email="user@example.com",
         )
-        self.user.set_password('testpassword123')
+        self.user.set_password("testpassword123")
         self.user.save()
 
         self.another_user = User.objects.create(
-            email='another@example.com',
+            email="another@example.com",
         )
-        self.another_user.set_password('testpassword123')
+        self.another_user.set_password("testpassword123")
         self.another_user.save()
 
         # Создаем группу модераторов
-        self.moderator_group, _ = Group.objects.get_or_create(name='moderators')
+        self.moderator_group, _ = Group.objects.get_or_create(name="moderators")
         self.moderator = User.objects.create(
-            email='moderator@example.com',
+            email="moderator@example.com",
         )
-        self.moderator.set_password('testpassword123')
+        self.moderator.set_password("testpassword123")
         self.moderator.save()
         self.moderator.groups.add(self.moderator_group)
 
         # Создаем курс
-        self.course = Course.objects.create(
-            name='Test Course',
-            owner=self.user
-        )
+        self.course = Course.objects.create(name="Test Course", owner=self.user)
 
         # Создаем урок
         self.lesson = Lesson.objects.create(
-            name='Test Lesson',
-            course=self.course,
-            owner=self.user
+            name="Test Lesson", course=self.course, owner=self.user
         )
 
         # URL для API
-        self.lessons_list_url = reverse('materials:lesson-list-create')
-        self.lesson_detail_url = reverse('materials:lesson-detail', args=[self.lesson.id])
+        self.lessons_list_url = reverse("materials:lesson-list-create")
+        self.lesson_detail_url = reverse(
+            "materials:lesson-detail", args=[self.lesson.id]
+        )
 
         # Клиент для API
         self.client = APIClient()
@@ -64,17 +61,14 @@ class LessonCRUDTestCase(APITestCase):
         """
         self.client.force_authenticate(user=self.user)
 
-        data = {
-            'name': 'New Lesson',
-            'course': self.course.id
-        }
+        data = {"name": "New Lesson", "course": self.course.id}
 
         response = self.client.post(self.lessons_list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Lesson.objects.count(), 2)
         self.assertEqual(Lesson.objects.last().owner, self.user)
-        self.assertEqual(Lesson.objects.last().name, 'New Lesson')
+        self.assertEqual(Lesson.objects.last().name, "New Lesson")
 
     def test_create_lesson_as_moderator(self):
         """
@@ -82,10 +76,7 @@ class LessonCRUDTestCase(APITestCase):
         """
         self.client.force_authenticate(user=self.moderator)
 
-        data = {
-            'name': 'Moderator Lesson',
-            'course': self.course.id
-        }
+        data = {"name": "Moderator Lesson", "course": self.course.id}
 
         response = self.client.post(self.lessons_list_url, data)
 
@@ -96,10 +87,7 @@ class LessonCRUDTestCase(APITestCase):
         """
         Тест создания урока неавторизованным пользователем (должен быть запрещен)
         """
-        data = {
-            'name': 'Unauth Lesson',
-            'course': self.course.id
-        }
+        data = {"name": "Unauth Lesson", "course": self.course.id}
 
         response = self.client.post(self.lessons_list_url, data)
 
@@ -115,8 +103,8 @@ class LessonCRUDTestCase(APITestCase):
         response = self.client.get(self.lessons_list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['name'], 'Test Lesson')
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["name"], "Test Lesson")
 
     def test_list_lessons_as_moderator(self):
         """
@@ -126,16 +114,13 @@ class LessonCRUDTestCase(APITestCase):
 
         # Создаем урок другого пользователя
         Lesson.objects.create(
-            name='Another Lesson',
-            course=self.course,
-            owner=self.another_user
+            name="Another Lesson", course=self.course, owner=self.another_user
         )
 
         response = self.client.get(self.lessons_list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 2)  # Модератор видит все уроки
-
+        self.assertEqual(len(response.data["results"]), 2)  # Модератор видит все уроки
 
     def test_update_lesson_as_owner(self):
         """
@@ -144,14 +129,14 @@ class LessonCRUDTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         data = {
-            'name': 'Updated Lesson Name',
+            "name": "Updated Lesson Name",
         }
 
         response = self.client.patch(self.lesson_detail_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.lesson.refresh_from_db()
-        self.assertEqual(self.lesson.name, 'Updated Lesson Name')
+        self.assertEqual(self.lesson.name, "Updated Lesson Name")
 
     def test_update_lesson_as_moderator(self):
         """
@@ -160,14 +145,14 @@ class LessonCRUDTestCase(APITestCase):
         self.client.force_authenticate(user=self.moderator)
 
         data = {
-            'name': 'Updated By Moderator',
+            "name": "Updated By Moderator",
         }
 
         response = self.client.patch(self.lesson_detail_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.lesson.refresh_from_db()
-        self.assertEqual(self.lesson.name, 'Updated By Moderator')
+        self.assertEqual(self.lesson.name, "Updated By Moderator")
 
     def test_update_lesson_as_another_user(self):
         """
@@ -176,16 +161,14 @@ class LessonCRUDTestCase(APITestCase):
         self.client.force_authenticate(user=self.another_user)
 
         data = {
-            'name': 'Hacked Lesson',
+            "name": "Hacked Lesson",
         }
 
         response = self.client.patch(self.lesson_detail_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.lesson.refresh_from_db()
-        self.assertNotEqual(self.lesson.name, 'Hacked Lesson')
-
-
+        self.assertNotEqual(self.lesson.name, "Hacked Lesson")
 
     def test_delete_lesson_as_owner(self):
         """
@@ -229,8 +212,8 @@ class LessonCRUDTestCase(APITestCase):
         response = self.client.get(self.lesson_detail_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['name'], 'Test Lesson')
-        self.assertEqual(response.data['course'], self.course.id)
+        self.assertEqual(response.data["name"], "Test Lesson")
+        self.assertEqual(response.data["course"], self.course.id)
 
     def test_retrieve_lesson_as_moderator(self):
         """
@@ -241,4 +224,4 @@ class LessonCRUDTestCase(APITestCase):
         response = self.client.get(self.lesson_detail_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['name'], 'Test Lesson')
+        self.assertEqual(response.data["name"], "Test Lesson")

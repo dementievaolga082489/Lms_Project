@@ -1,7 +1,8 @@
 from rest_framework import generics, viewsets
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.permissions import IsModerator, IsOwner
+
 from .models import Course, Lesson
 from .paginators import Paginator
 from .serializers import CourseSerializer, LessonSerializer
@@ -17,16 +18,16 @@ class CourseViewSet(viewsets.ModelViewSet):
         """
         Разделяем права по action (действиям)
         """
-        if self.action == 'create':
+        if self.action == "create":
             # Создание - только для авторизованных пользователей, НЕ модераторов
             # Модераторы НЕ МОГУТ создавать курсы
             self.permission_classes = [IsAuthenticated, ~IsModerator]
 
-        elif self.action in ['update', 'partial_update']:
+        elif self.action in ["update", "partial_update"]:
             # Обновление - для модераторов ИЛИ владельцев
             self.permission_classes = [IsAuthenticated, IsModerator | IsOwner]
 
-        elif self.action == 'destroy':
+        elif self.action == "destroy":
             # Удаление - только для владельцев (модераторы НЕ МОГУТ удалять)
             self.permission_classes = [IsAuthenticated, IsOwner]
 
@@ -47,16 +48,21 @@ class CourseViewSet(viewsets.ModelViewSet):
         Фильтруем queryset в зависимости от прав пользователя
         """
         # Если пользователь модератор - показывает все курсы
-        if self.request.user and self.request.user.is_authenticated and \
-                self.request.user.groups.filter(name='moderators').exists():
-            return Course.objects.all().prefetch_related('lessons')
+        if (
+            self.request.user
+            and self.request.user.is_authenticated
+            and self.request.user.groups.filter(name="moderators").exists()
+        ):
+            return Course.objects.all().prefetch_related("lessons")
 
         # Если пользователь авторизован - показывает только свои курсы
         elif self.request.user and self.request.user.is_authenticated:
-            return Course.objects.filter(owner=self.request.user).prefetch_related('lessons')
+            return Course.objects.filter(owner=self.request.user).prefetch_related(
+                "lessons"
+            )
 
         # Неавторизованные видят все курсы (только чтение)
-        return Course.objects.all().prefetch_related('lessons')
+        return Course.objects.all().prefetch_related("lessons")
 
 
 class CourseListView(generics.ListAPIView):
@@ -81,7 +87,7 @@ class LessonListCreateView(generics.ListCreateAPIView):
     pagination_class = Paginator
 
     def get_permissions(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             # Создание - только для авторизованных, НЕ модераторов
             self.permission_classes = [IsAuthenticated, ~IsModerator]
         else:
@@ -100,16 +106,21 @@ class LessonListCreateView(generics.ListCreateAPIView):
         Фильтруем queryset в зависимости от прав пользователя
         """
         # Если пользователь модератор - показывает все уроки
-        if self.request.user and self.request.user.is_authenticated and \
-                self.request.user.groups.filter(name='moderators').exists():
-            return Lesson.objects.all().select_related('course', 'owner')
+        if (
+            self.request.user
+            and self.request.user.is_authenticated
+            and self.request.user.groups.filter(name="moderators").exists()
+        ):
+            return Lesson.objects.all().select_related("course", "owner")
 
         # Если пользователь авторизован - показывает только свои уроки
         elif self.request.user and self.request.user.is_authenticated:
-            return Lesson.objects.filter(owner=self.request.user).select_related('course', 'owner')
+            return Lesson.objects.filter(owner=self.request.user).select_related(
+                "course", "owner"
+            )
 
         # Неавторизованные видят все уроки (только чтение)
-        return Lesson.objects.all().select_related('course', 'owner')
+        return Lesson.objects.all().select_related("course", "owner")
 
 
 class LessonRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -117,11 +128,11 @@ class LessonRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = LessonSerializer
 
     def get_permissions(self):
-        if self.request.method in ['PUT', 'PATCH']:
+        if self.request.method in ["PUT", "PATCH"]:
             # Обновление - для модераторов ИЛИ владельцев
             self.permission_classes = [IsAuthenticated, IsModerator | IsOwner]
 
-        elif self.request.method == 'DELETE':
+        elif self.request.method == "DELETE":
             # Удаление - только для владельцев (модераторы НЕ МОГУТ удалять)
             self.permission_classes = [IsAuthenticated, IsOwner]
 
@@ -130,4 +141,3 @@ class LessonRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             self.permission_classes = [AllowAny]
 
         return super().get_permissions()
-
