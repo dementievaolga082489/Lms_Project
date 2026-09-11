@@ -6,6 +6,7 @@ from users.permissions import IsModerator, IsOwner
 from .models import Course, Lesson
 from .paginators import Paginator
 from .serializers import CourseSerializer, LessonSerializer
+from .tasks import send_course_update_email
 
 
 # Для курса используем ViewSet
@@ -42,6 +43,14 @@ class CourseViewSet(viewsets.ModelViewSet):
         При создании курса автоматически привязываем владельца
         """
         serializer.save(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        """
+        Сохраняем курс и после успешного сохранения
+        ставим задачу на рассылку подписчикам.
+        """
+        course = serializer.save()
+        send_course_update_email.delay(course.id, course.name)
 
     def get_queryset(self):
         """
