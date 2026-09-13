@@ -30,6 +30,7 @@ class Course(models.Model):
         null=True,
         blank=True,
     )
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

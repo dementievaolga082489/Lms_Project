@@ -9,14 +9,22 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from materials.models import Course
-from users.services import (create_stripe_price, create_stripe_product,
-                            create_stripe_session)
+from users.services import (
+    create_stripe_price,
+    create_stripe_product,
+    create_stripe_session,
+)
 
 from .models import Payments, Subscription, User
 from .permissions import IsOwner
-from .serializers import (PaymentSerializer, PaymentStripeSerializer,
-                          SubscriptionSerializer, UserProfileSerializer,
-                          UserPublicSerializer, UserSerializer)
+from .serializers import (
+    PaymentSerializer,
+    PaymentStripeSerializer,
+    SubscriptionSerializer,
+    UserProfileSerializer,
+    UserPublicSerializer,
+    UserSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
