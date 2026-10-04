@@ -1,0 +1,104 @@
+services:
+  db:
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build: .
+    command: python manage.py migrate --noinput
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: db
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: "no"
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: db
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    volumes:
+      - .:/app
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  celery:
+    build: .
+    command: celery -A config worker -l info
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: db
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    volumes:
+      - .:/app
+      - media_data:/app/media
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  celery-beat:
+    build: .
+    command: celery -A config beat -l info
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: db
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    volumes:
+      - .:/app
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pg_data:
+  redis_data:
+  static_data:
+  media_data:

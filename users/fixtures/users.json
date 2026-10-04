@@ -1,0 +1,38 @@
+[
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$vZ9sZk7QpY0z$QZ8W5hBvqkZzZtCLYbqKxkf/8TpQ7JwZ0eYgCx9Jv0=",
+      "last_login": null,
+      "email": "ivan@mail.ru",
+      "phone": "+7 (999) 111-22-33",
+      "city": "Москва",
+      "avatar": null
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$mN9uRq3PqBq0$gT6WvQzRkFc9H7KpMqZzZz3aBdF4wXkP5nLmOqRrS=",
+      "last_login": null,
+      "email": "maria@mail.ru",
+      "phone": "+7 (999) 222-33-44",
+      "city": "Санкт-Петербург",
+      "avatar": null
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$vQ8wQz3rP1zE$hF8jM5nQwBkPqR7sT0vXzZz4cGdF5wYkP6mNqRrT=",
+      "last_login": null,
+      "email": "petr@mail.ru",
+      "phone": "+7 (999) 333-44-55",
+      "city": "Новосибирск",
+      "avatar": null
+    }
+  }
+]

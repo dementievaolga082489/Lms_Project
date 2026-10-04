@@ -1,0 +1,102 @@
+from rest_framework import serializers
+
+from .models import Payments, Subscription, User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Payments"""
+
+    user_email = serializers.ReadOnlyField(source="user.email")
+    course_name = serializers.ReadOnlyField(source="course.name", allow_null=True)
+    lesson_name = serializers.ReadOnlyField(source="lesson.name", allow_null=True)
+
+    class Meta:
+        model = Payments
+        fields = [
+            "id",
+            "user",
+            "user_email",
+            "payment_date",
+            "course",
+            "course_name",
+            "lesson",
+            "lesson_name",
+            "amount",
+            "payment_method",
+        ]
+        read_only_fields = ["user"]
+
+
+class PaymentStripeSerializer(serializers.ModelSerializer):
+    """Сериализатор для платежей в Stripe"""
+
+    class Meta:
+        model = Payments
+        fields = "__all__"
+        read_only_fields = [
+            "user",
+            "stripe_product_id",
+            "stripe_price_id",
+            "stripe_session_id",
+            "payment_url",
+            "payment_date",
+        ]
+
+
+class UserPaymentSerializer(serializers.ModelSerializer):
+    """Сериализатор для платежей в профиле пользователя"""
+
+    course_name = serializers.ReadOnlyField(source="course.name", allow_null=True)
+    lesson_name = serializers.ReadOnlyField(source="lesson.name", allow_null=True)
+
+    class Meta:
+        model = Payments
+        fields = [
+            "id",
+            "payment_date",
+            "course_name",
+            "lesson_name",
+            "amount",
+            "payment_method",
+        ]
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Сериализатор для профиля пользователя с историей платежей"""
+
+    payment_history = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["id", "email", "phone", "city", "avatar", "payment_history"]
+
+    def get_payment_history(self, obj):
+        """Получение истории платежей пользователя"""
+        payments = obj.payments.all().order_by("-payment_date")
+        return UserPaymentSerializer(payments, many=True).data
+
+
+class UserPublicSerializer(serializers.ModelSerializer):
+    """Сериализатор для публичного просмотра профиля (без личной информации)"""
+
+    class Meta:
+        model = User
+        fields = ["id", "email", "city", "avatar"]
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    """Сериализатор для подписки"""
+
+    user_email = serializers.ReadOnlyField(source="user.email")
+    course_name = serializers.ReadOnlyField(source="course.name")
+
+    class Meta:
+        model = Subscription
+        fields = ["id", "user", "user_email", "course", "is_active", "course_name"]
+        read_only_fields = ["user", "is_active"]
