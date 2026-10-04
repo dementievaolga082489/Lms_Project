@@ -16,6 +16,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: always
 
   redis:
     image: redis:7-alpine
@@ -28,18 +29,19 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: always
 
   migrate:
     image: ${DOCKER_HUB_USERNAME}/lms-project:latest
-    command: python manage.py migrate --noinput
+    command: sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput"
+    volumes:
+      - static_data:/app/staticfiles
     env_file:
       - .env
     environment:
       DATABASE_HOST: db
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-    volumes:
-      - .:/app
     depends_on:
       db:
         condition: service_healthy
@@ -49,7 +51,7 @@ services:
 
   web:
     image: ${DOCKER_HUB_USERNAME}/lms-project:latest
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
     env_file:
       - .env
     environment:
@@ -57,14 +59,14 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
     volumes:
-      - .:/app
       - media_data:/app/media
       - static_data:/app/staticfiles
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     depends_on:
       migrate:
         condition: service_completed_successfully
+    restart: always
 
   celery:
     image: ${DOCKER_HUB_USERNAME}/lms-project:latest
@@ -76,11 +78,11 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
     volumes:
-      - .:/app
       - media_data:/app/media
     depends_on:
       migrate:
         condition: service_completed_successfully
+    restart: always
 
   celery-beat:
     image: ${DOCKER_HUB_USERNAME}/lms-project:latest
@@ -91,21 +93,24 @@ services:
       DATABASE_HOST: db
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-    volumes:
-      - .:/app
     depends_on:
       migrate:
         condition: service_completed_successfully
+    restart: always
 
   nginx:
     build:
       context: ./nginx
       dockerfile: Dockerfile.nginx
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./html:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_data:/app/staticfiles
+      - media_data:/app/media
     ports:
       - "80:80"
+    depends_on:
+      - web
+    restart: always
 
 volumes:
   pg_data:
