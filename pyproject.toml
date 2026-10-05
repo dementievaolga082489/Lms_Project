@@ -43,3 +43,7 @@ lint = [
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py", "*_test.py"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
