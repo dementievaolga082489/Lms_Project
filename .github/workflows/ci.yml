@@ -30,7 +30,7 @@ jobs:
       - name: Run tests
         run: poetry run pytest
         env:
-          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DJANGO_DEBUG: "False"
 
   lint:
