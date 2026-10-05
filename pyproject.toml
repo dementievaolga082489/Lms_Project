@@ -46,4 +46,7 @@ python_files = ["test_*.py", "*_test.py"]
 
 [tool.isort]
 profile = "black"
-line_length = 88
+line_length = 120
+
+[tool.black]
+line-length = 120

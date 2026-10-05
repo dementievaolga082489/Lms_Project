@@ -27,9 +27,7 @@ class SubscriptionTestCase(APITestCase):
 
         self.course = Course.objects.create(name="Test Course", owner=self.user)
 
-        self.another_course = Course.objects.create(
-            name="Another Course", owner=self.another_user
-        )
+        self.another_course = Course.objects.create(name="Another Course", owner=self.another_user)
 
         self.subscription_toggle_url = reverse("users:subscription-toggle")
         self.subscriptions_list_url = reverse("users:my-subscriptions")
@@ -47,9 +45,7 @@ class SubscriptionTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["message"], "Подписка добавлена")
-        self.assertTrue(
-            Subscription.objects.filter(user=self.user, course=self.course).exists()
-        )
+        self.assertTrue(Subscription.objects.filter(user=self.user, course=self.course).exists())
 
     def test_remove_subscription(self):
         """
@@ -66,9 +62,7 @@ class SubscriptionTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["message"], "Подписка удалена")
-        self.assertFalse(
-            Subscription.objects.filter(user=self.user, course=self.course).exists()
-        )
+        self.assertFalse(Subscription.objects.filter(user=self.user, course=self.course).exists())
 
     def test_add_subscription_as_unauthenticated_user(self):
         """
@@ -78,9 +72,7 @@ class SubscriptionTestCase(APITestCase):
         response = self.client.post(self.subscription_toggle_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertFalse(
-            Subscription.objects.filter(user=self.user, course=self.course).exists()
-        )
+        self.assertFalse(Subscription.objects.filter(user=self.user, course=self.course).exists())
 
     def test_add_subscription_twice(self):
         """

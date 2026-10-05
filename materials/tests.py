@@ -42,15 +42,11 @@ class LessonCRUDTestCase(APITestCase):
         self.course = Course.objects.create(name="Test Course", owner=self.user)
 
         # Создаем урок
-        self.lesson = Lesson.objects.create(
-            name="Test Lesson", course=self.course, owner=self.user
-        )
+        self.lesson = Lesson.objects.create(name="Test Lesson", course=self.course, owner=self.user)
 
         # URL для API
         self.lessons_list_url = reverse("materials:lesson-list-create")
-        self.lesson_detail_url = reverse(
-            "materials:lesson-detail", args=[self.lesson.id]
-        )
+        self.lesson_detail_url = reverse("materials:lesson-detail", args=[self.lesson.id])
 
         # Клиент для API
         self.client = APIClient()
@@ -113,9 +109,7 @@ class LessonCRUDTestCase(APITestCase):
         self.client.force_authenticate(user=self.moderator)
 
         # Создаем урок другого пользователя
-        Lesson.objects.create(
-            name="Another Lesson", course=self.course, owner=self.another_user
-        )
+        Lesson.objects.create(name="Another Lesson", course=self.course, owner=self.another_user)
 
         response = self.client.get(self.lessons_list_url)
 

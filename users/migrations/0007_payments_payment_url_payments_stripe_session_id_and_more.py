@@ -25,9 +25,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="payments",
             name="stripe_session_id",
-            field=models.CharField(
-                blank=True, max_length=255, null=True, verbose_name="ID сессии в Stripe"
-            ),
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name="ID сессии в Stripe"),
         ),
         migrations.AlterField(
             model_name="payments",

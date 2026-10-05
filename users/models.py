@@ -5,9 +5,7 @@ from django.db import models
 
 class User(AbstractUser):
     username = None
-    email = models.EmailField(
-        unique=True, verbose_name="Почта", help_text="Укажите почту"
-    )
+    email = models.EmailField(unique=True, verbose_name="Почта", help_text="Укажите почту")
 
     phone = models.CharField(
         max_length=20,
@@ -128,9 +126,7 @@ class Subscription(models.Model):
         help_text="Курс, на который подписан пользователь",
         related_name="subscribers",
     )
-    is_active = models.BooleanField(
-        default=True, verbose_name="Активна", help_text="Активна ли подписка"
-    )
+    is_active = models.BooleanField(default=True, verbose_name="Активна", help_text="Активна ли подписка")
 
     class Meta:
         verbose_name = "Подписка"

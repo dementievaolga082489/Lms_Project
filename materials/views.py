@@ -66,9 +66,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         # Если пользователь авторизован - показывает только свои курсы
         elif self.request.user and self.request.user.is_authenticated:
-            return Course.objects.filter(owner=self.request.user).prefetch_related(
-                "lessons"
-            )
+            return Course.objects.filter(owner=self.request.user).prefetch_related("lessons")
 
         # Неавторизованные видят все курсы (только чтение)
         return Course.objects.all().prefetch_related("lessons")
@@ -124,9 +122,7 @@ class LessonListCreateView(generics.ListCreateAPIView):
 
         # Если пользователь авторизован - показывает только свои уроки
         elif self.request.user and self.request.user.is_authenticated:
-            return Lesson.objects.filter(owner=self.request.user).select_related(
-                "course", "owner"
-            )
+            return Lesson.objects.filter(owner=self.request.user).select_related("course", "owner")
 
         # Неавторизованные видят все уроки (только чтение)
         return Lesson.objects.all().select_related("course", "owner")

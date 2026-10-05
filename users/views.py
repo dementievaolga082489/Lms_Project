@@ -135,9 +135,7 @@ class SubscriptionView(APIView):
         course = get_object_or_404(Course, id=course_id)
 
         # Проверяем существование подписки
-        subscription = Subscription.objects.filter(
-            user=user, course=course, is_active=True
-        )
+        subscription = Subscription.objects.filter(user=user, course=course, is_active=True)
 
         if subscription.exists():
             # Если подписка существует - удаляем (деактивируем)

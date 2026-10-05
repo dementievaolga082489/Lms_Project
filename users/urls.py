@@ -33,12 +33,8 @@ urlpatterns = [
         TokenRefreshView.as_view(permission_classes=(AllowAny,)),
         name="token_refresh",
     ),
-    path(
-        "subscriptions/toggle/", SubscriptionView.as_view(), name="subscription-toggle"
-    ),
-    path(
-        "subscriptions/my/", UserSubscriptionListView.as_view(), name="my-subscriptions"
-    ),
+    path("subscriptions/toggle/", SubscriptionView.as_view(), name="subscription-toggle"),
+    path("subscriptions/my/", UserSubscriptionListView.as_view(), name="my-subscriptions"),
     path("payments/stripe/", PaymentCreateApiView.as_view(), name="payment"),
 ]
 urlpatterns += router.urls
