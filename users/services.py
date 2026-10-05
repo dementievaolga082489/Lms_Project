@@ -1,6 +1,5 @@
 import stripe
 from django.conf import settings
-from django.db import transaction
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
