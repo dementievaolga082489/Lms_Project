@@ -26,11 +26,11 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-      - run: poetry install --with test,lint
+      - run: poetry install --with test,lint --no-root
       - name: Run tests
         run: poetry run pytest
         env:
-          DJANGO_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DJANGO_DEBUG: "False"
 
   lint:
