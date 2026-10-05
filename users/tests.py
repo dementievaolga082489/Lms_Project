@@ -54,7 +54,7 @@ class SubscriptionTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         # Сначала создаем подписку
-        subscription = Subscription.objects.create(user=self.user, course=self.course)
+        Subscription.objects.create(user=self.user, course=self.course)
 
         # Затем удаляем
         data = {"course_id": self.course.id}
